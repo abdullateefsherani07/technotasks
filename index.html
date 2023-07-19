@@ -11,6 +11,21 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <!-- Material UI kit CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/5.2.2/css/mdb.min.css">
+  <link rel="manifest" href="/manifest.json">
+  <!-- Add the service worker script -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('Service worker registered: ', registration);
+          })
+          .catch(error => {
+            console.error('Error registering service worker: ', error);
+          });
+      });
+    }
+  </script>
   <style>
     .container {
       max-width: 500px;
@@ -27,6 +42,8 @@ footer {
 
 <body>
   <div class="container">
+    <!-- Add a button to trigger the installation prompt -->
+    <button id="installButton" style="display:none;">Install Techno Insider</button>
     <h1 class="text-center mb-4">Techno Tasks</h1>
     <div class="input-group mb-3">
       <input type="text" class="form-control" id="taskInput" placeholder="Add a new task">
@@ -90,6 +107,31 @@ footer {
 
     // Render tasks on page load
     renderTasks();
+  </script>
+  <!-- Add a script to show the installation prompt when appropriate -->
+  <script>
+    window.addEventListener('beforeinstallprompt', (event) => {
+      // Prevent Chrome from automatically showing the install prompt
+      event.preventDefault();
+
+      // Show our custom install button
+      const installButton = document.getElementById('installButton');
+      installButton.style.display = 'block';
+
+      // Handle the custom install button click
+      installButton.addEventListener('click', () => {
+        event.prompt();
+        event.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          } else {
+            console.log('User dismissed the install prompt');
+          }
+          // Hide the install button after prompt is shown
+          installButton.style.display = 'none';
+        });
+      });
+    });
   </script>
 </body>
 
